@@ -16,8 +16,10 @@ test_df = pd.read_csv("C:/Users/jarom/Desktop/DSA 5900/Data/state_data.csv")
 #create baseHeuristic instance
 test = hc.hillClimb(test_df,3)
 
-print(test.df_len)
+#problems with the actual hill climb method and I think there is a problem with random restarts as well.
+results = test.runHillClimb(selectMethod='First Accept',aggMethod='avg',distMetric='euc',restarts=3)
 
-print('done')
+print(results[2])
+
 
 
