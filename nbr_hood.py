@@ -1,7 +1,11 @@
 #Inherits baseHueristic class
 #Provides random neighborhood start, and neighborhood creation based on current solution space
 #Does not provide any kind of decisions based on neighborhoods => use specific heuristic classes for those methods
-class nbrHood(baseHeuristic):
+import base_class as bc
+import random
+import copy
+
+class nbrHood(bc.baseHeuristic):
     #nbrHoodSize = the number of nbrs that will be explored
     #numGroups = the number of groups that the hueristic will put the elements into
     #numSwaps = how many swaps to get neighbors
@@ -37,9 +41,9 @@ class nbrHood(baseHeuristic):
         if randStart == 'Y':
             
             #set random seed
-            random.seed(seed)
+            #random.seed(seed)
             
-            #create lable list to hold all lables 
+            #create label list to hold all lables 
             label_list = list(self.df.iloc[:,0])
             
             #instantiate grouping list
