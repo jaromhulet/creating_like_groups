@@ -1,3 +1,8 @@
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from itertools import combinations
+import math
+
 class baseHeuristic:
     def __init__(self,df):
         
@@ -125,14 +130,14 @@ class baseHeuristic:
             for j in range(0,(len(self.stdDf.columns)-1)):
 
                 #if user input list of aggregation types is 'sum', then execute
-                if aggMethod[j] == 'sum':
+                if aggMethod == 'sum':
                     #calculate column sum
                     temp_aggr = temp_df.iloc[:,j+1].sum()
                     #append summed value to list
                     temp_list.append(temp_aggr)
 
                 #if user input list of aggregation types is 'avg', then execute
-                elif aggMethod[j] == 'avg':
+                elif aggMethod == 'avg':
                     #calculate column mean
                     temp_aggr = temp_df.iloc[:,j+1].mean()
                     #append mean value to list
@@ -149,9 +154,9 @@ class baseHeuristic:
         return master_df
 
     #add up all of the pairwise distances using pairDist method
-    def totalDist(self):
+    def totalDist(self,groups,dist):
         
-        row_num = len(self.aggrDf)
+        row_num = len(groups)
         combins = list(combinations(list(range(0,row_num)),2))
 
         #instantiac variable to hold total distance
@@ -159,10 +164,10 @@ class baseHeuristic:
         
         for i in range(0,len(combins)):
 
-            temp_dist_df = self.aggrDf[self.aggrDf.iloc[:,0].isin(combins[i])]
+            temp_dist_df = groups[groups.iloc[:,0].isin(combins[i])]
             
             #Get pairwise distance between two groups at a time, using self.pairDist
-            temp_dist = self.pairDist(self.aggrDf.iloc[0,:],self.aggrDf.iloc[1,:])
+            temp_dist = self.pairDist(groups.iloc[0,:],groups.iloc[1,:],dist)
             
             #add to total_dist
             total_dist = total_dist + temp_dist
