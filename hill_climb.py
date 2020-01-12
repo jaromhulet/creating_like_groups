@@ -44,35 +44,43 @@ class hillClimb(nbr.nbrHood):
         
         #implement first accept method
         elif selectMethod == 'First Accept':
-            
+               
+            #my current solultion gets reset at each restart.  That's why I'm not getting the best from all restarts.  I'm only getting the best from the most 
+            #recent restart.  I need to fix this by giving permanance to the best solution of all restarts
             for h in range(0,restarts):
-                currentSolution = startSolution
+                
+                #new starting solution
+                currentSolution = self.startSol(randStart=randStart,startMetric=startMetric)
+                
+                print("restart %s" % h)
 
                 done = False
 
                 while done == False:
                     bestNbr = currentSolution
-                    #bestDist = self.totalDist(currentSolution,distMetric)
+                    bestDist = self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric)
 
                     #create neighborhood
                     Nbrhood = self.createNbrhood(currentSolution,self.numGroups)
 
                     #loop thru all nbrs to get distance value
                     for i in range(0,len(Nbrhood)):
-                        currentBest = self.groupMetrics(Nbrhood[i],aggMethod)
-                        current = self.groupMetrics(bestNbr,aggMethod)
+                        #current = self.groupMetrics(Nbrhood[i],aggMethod)
+                        #currentBest = self.groupMetrics(bestNbr,aggMethod)
                         
-                        if self.totalDist(currentBest,distMetric) < self.totalDist(current,distMetric):
+                        if self.totalDist(self.groupMetrics(Nbrhood[i],aggMethod),distMetric) < self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric):
                             bestNbr = Nbrhood[i]
-                            bestDist = self.totalDist(currentBest,distMetric)
+                            bestDist = self.totalDist(self.groupMetrics(Nbrhood[i],aggMethod),distMetric)
                             #early exit as soon as a better solution is found
                             break
 
                     if currentSolution == bestNbr:
+                        #bestNbr = currentSolution
+                        #bestDist = self.totalDist(self.groupMetrics(Nbrhood[i],aggMethod),distMetric)
                         done = True
                     else:
                         currentSolution = bestNbr
-                    print("Iteration best solution distance = %s " % bestDist)
+                    print("Iteration best solution distance = %s " % self.totalDist(self.groupMetrics(Nbrhood[i],aggMethod),distMetric))
         
         elif selectMethod == 'Random Walk':
             
@@ -100,8 +108,77 @@ class hillClimb(nbr.nbrHood):
                     if currentSolution == bestNbr:
                         done = True
                     else:
-                        currentSolution = bestNbr                            
+                        currentSolution = bestNbr 
+                        
+        elif selectMethod == 'TEST':
+            
+            currentSolution = startSolution
+            
+            done = 0
+            
+            while done == 0:
+                
+                bestNbr = currentSolution
+                bestDist = self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric)
+                
+                for i in self.createNbrhood(currentSolution,self.numGroups):
+                    if self.totalDist(self.groupMetrics(i,aggMethod),distMetric) < self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric):
+                        bestNbr = i
+                        bestDist = self.totalDist(self.groupMetrics(i,aggMethod),distMetric)
+                        print(bestDist)
+                        
+                if currentSolution == bestNbr:
+                    done = 1
+                else:
+                    currentSolution = bestNbr
+                    
+        
+        
+        elif selectMethod == 'TEST2':
+            
+            globalBestNbr = startSolution
+            globalBestDist = self.totalDist(self.groupMetrics(startSolution,aggMethod),distMetric)
+            
+            for j in range(0,restarts):
+                
+            
+                currentSolution = startSolution
+            
+                done = 0
+            
+                while done == 0:
+                    
+                    bestNbr = currentSolution
+                    bestDist = self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric)
+                    
+                    for i in self.createNbrhood(currentSolution,self.numGroups):
+                        if self.totalDist(self.groupMetrics(i,aggMethod),distMetric) < self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric):
+                            bestNbr = i
+                            bestDist = self.totalDist(self.groupMetrics(i,aggMethod),distMetric)
+                            print(bestDist)
+                            
+                    if currentSolution == bestNbr:
+                        done = 1
+                    else:
+                        currentSolution = bestNbr 
+                        
+                        
+                print("restart")
+                
+                if bestDist < globalBestDist:
+                    globalBestNbr = bestNbr
+                    globalBestDist = self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric)
+                    print("New Global Best = %s" % globalBestDist)
+                    
+                    
+            #put the globals back into the locals so the return statement returns the global bests
+            #bestNbr = globalBestNbr
+            #bestDist = globalBestDist
+            
+            print("done")
+                    
+                
             
     
         #return solution metric and solution
-        return [self.groupMetrics(bestNbr,aggMethod),bestNbr,bestDist]
+        return [self.groupMetrics(globalBestNbr,aggMethod),globalBestNbr,globalBestDist]
