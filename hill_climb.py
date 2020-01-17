@@ -6,15 +6,17 @@ import numpy as np
 #create class for hill climb algorithms
 class hillClimb(nbr.nbrHood):
     
-    def __init__(self,df,numGroups):
+    def __init__(self,df,numGroups,nbrhoodsize):
         
         super().__init__(df,numGroups)
+        self.nbrhoodsize = nbrhoodsize
         
     
-    def runHillClimb(self,selectMethod,restarts,aggMethod,distMetric,startMetric=1,randStart='Y',seed=1920,randWalkProb=0.1):
+    def runHillClimb(self,selectMethod,restarts,aggMethod,distMetric,startMetric=1,randStart='Y',seed=1920,power=1):
         #start random seed
         
         #random.seed(seed)
+        obs = 0
         
         #create a starting solution
         startSolution = self.startSol(randStart=randStart,startMetric=startMetric)
@@ -37,7 +39,8 @@ class hillClimb(nbr.nbrHood):
                     bestNbr = currentSolution
                     bestDist = self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric)
                     
-                    for i in self.createNbrhood(currentSolution,self.numGroups):
+                    for i in self.createNbrhood(currentSolution,self.nbrhoodsize):
+                        obs = obs + 1
                         if self.totalDist(self.groupMetrics(i,aggMethod),distMetric) < self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric):
                             bestNbr = i
                             bestDist = self.totalDist(self.groupMetrics(i,aggMethod),distMetric)
@@ -77,7 +80,8 @@ class hillClimb(nbr.nbrHood):
                 bestNbr = currentSolution
                 bestDist = self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric)
                 
-                for i in self.createNbrhood(currentSolution,self.numGroups):
+                for i in self.createNbrhood(currentSolution,self.nbrhoodsize):
+                    obs = obs + 1
                     if self.totalDist(self.groupMetrics(i,aggMethod),distMetric) < self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric):
                         bestNbr = i
                         bestDist = self.totalDist(self.groupMetrics(i,aggMethod),distMetric)
@@ -107,7 +111,8 @@ class hillClimb(nbr.nbrHood):
                     bestNbr = currentSolution
                     bestDist = self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric)
                     
-                    for i in self.createNbrhood(currentSolution,self.numGroups):
+                    for i in self.createNbrhood(currentSolution,self.nbrhoodsize):
+                        obs = obs + 1
                         if self.totalDist(self.groupMetrics(i,aggMethod),distMetric) < self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric):
                             bestNbr = i
                             bestDist = self.totalDist(self.groupMetrics(i,aggMethod),distMetric)
@@ -168,7 +173,8 @@ class hillClimb(nbr.nbrHood):
                     bestDist = self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric)
                     
                     #make a list of nbr distances
-                    for i in self.createNbrhood(currentSolution,self.numGroups):
+                    for i in self.createNbrhood(currentSolution,self.nbrhoodsize):
+                        obs = obs + 1
                         
                         temp_nbr_df = temp_nbr_df.append({'nbr':i,'dist':self.totalDist(self.groupMetrics(i,aggMethod),distMetric)},ignore_index=True)
                     
@@ -181,6 +187,8 @@ class hillClimb(nbr.nbrHood):
                     temp_nbr_df = temp_nbr_df.sort_values(by='dist')
                     
                     temp_array = temp_nbr_df['dist'].values
+                    
+                    temp_array = np.power(temp_array,power)
                     
                     #flip array so lowest values have highest probability of selection
                     temp_array = np.flip(temp_array)
@@ -220,7 +228,7 @@ class hillClimb(nbr.nbrHood):
             print("done")  
                     
                 
-            
+        obs_statement = ("%s Solutions Examined" % obs)
     
         #return solution metric and solution
-        return [self.groupMetrics(globalBestNbr,aggMethod),globalBestNbr,globalBestDist]
+        return [self.groupMetrics(globalBestNbr,aggMethod),globalBestNbr,globalBestDist,obs_statement]
