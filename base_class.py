@@ -291,9 +291,9 @@ class baseHeuristic:
         
             sample_dists.append(temp_dist)
             
-        plt.hist(sample_dists)
+        plt.hist(sample_dists,bins=30)
         
-        plt.show()
+        
         
         #convert to numpy array
         sample_dists_np = np.array(sample_dists)
@@ -302,5 +302,9 @@ class baseHeuristic:
         data_min, data_max = sample_dists_np.min(), sample_dists_np.max()
         
         five_num_summary = [data_min,quartiles[0],quartiles[1],quartiles[2],data_max]
+        
+        print(five_num_summary)
+        
+        plt.show()
         
         return five_num_summary
