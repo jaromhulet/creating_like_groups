@@ -47,6 +47,29 @@ class baseHeuristic:
         
         #combine standardized data back to label column
         self.stdDf = pd.concat([self.df.iloc[:,0],temp_df],axis=1)
+ 
+    
+    def varSizeStartSol(self):
+        
+        grouping = []
+        
+        #create label list to hold all lables 
+        label_list = list(self.df.iloc[:,0]) 
+  
+        #initiate first element in each group
+        for i in range(0,self.numGroups):
+            rand_num = random.randint(0,len(label_list)-1)
+            grouping.append([label_list[rand_num]])
+            label_list.pop(rand_num) 
+            
+        while len(label_list) > 0:
+            
+            rand_group = random.randint(0,self.numGroups-1)
+            rand_num = random.randint(0,len(label_list)-1)
+            grouping[rand_group].append(label_list[rand_num])
+            label_list.pop(rand_num)             
+            
+        return grouping
         
         
         #method to create starting solution
@@ -280,7 +303,7 @@ class baseHeuristic:
     
     
     #create a function to make a histogram of random position values
-    def sample_hist(self,sample_size,aggMethod,distMetric):
+    def sample_hist(self,sample_size,bin_count,aggMethod,distMetric):
         
         sample_dists = []
         
@@ -291,13 +314,18 @@ class baseHeuristic:
         
             sample_dists.append(temp_dist)
             
-        plt.hist(sample_dists,bins=30)
+        plt.hist(sample_dists,bins=bin_count)
+        plt.xticks(np.arange(0,16.5,0.5),rotation='vertical')
         
         
         
         #convert to numpy array
         sample_dists_np = np.array(sample_dists)
         
+        sample_dists_df = pd.DataFrame(sample_dists_np)
+        
+        sample_dists_df.to_pickle("./sample_distribution.pkl")
+
         quartiles = percentile(sample_dists_np, [25,50,75])
         data_min, data_max = sample_dists_np.min(), sample_dists_np.max()
         
