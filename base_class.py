@@ -286,7 +286,7 @@ class baseHeuristic:
         
         row_num = len(groups)
         combins = list(combinations(list(range(0,row_num)),2))
-        print(combins)
+
         #instantiac variable to hold total distance
         total_dist = 0
         
