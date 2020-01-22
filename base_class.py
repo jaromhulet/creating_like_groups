@@ -5,6 +5,7 @@ import math
 from matplotlib import pyplot as plt
 import numpy as np
 from numpy import percentile
+import random
 
 
 class baseHeuristic:
@@ -203,7 +204,7 @@ class baseHeuristic:
         #Euclidean distance
         if distCalc == 'euc':
             
-            for i in range(1,list_len):
+            for i in range(0,list_len):
                 
                 temp_dist = (a[i]-b[i])**2
                 dist_sum = dist_sum + temp_dist
@@ -285,7 +286,7 @@ class baseHeuristic:
         
         row_num = len(groups)
         combins = list(combinations(list(range(0,row_num)),2))
-
+        print(combins)
         #instantiac variable to hold total distance
         total_dist = 0
         
@@ -293,9 +294,10 @@ class baseHeuristic:
 
             temp_dist_df = groups[groups.iloc[:,0].isin(combins[i])]
             
-            #Get pairwise distance between two groups at a time, using self.pairDist
-            temp_dist = self.pairDist(groups.iloc[0,:],groups.iloc[1,:],dist)
             
+            #Get pairwise distance between two groups at a time, using self.pairDist
+            
+            temp_dist = self.pairDist(temp_dist_df.iloc[0][1:],temp_dist_df.iloc[1][1:],dist)
             #add to total_dist
             total_dist = total_dist + temp_dist
         
@@ -303,23 +305,38 @@ class baseHeuristic:
     
     
     #create a function to make a histogram of random position values
-    def sample_hist(self,sample_size,bin_count,aggMethod,distMetric):
+    def sample_hist(self,sample_size,bin_count,aggMethod,distMetric,sample_type='equal size'):
         
         sample_dists = []
         
-        for i in range(0,sample_size):
-            temp_solution = self.startSol()
+        if sample_type == 'equal size':
             
-            temp_dist = self.totalDist(self.groupMetrics(temp_solution,aggMethod),distMetric)
+            print('Starting samples of solution space')
+            for i in range(0,sample_size):
+                temp_solution = self.startSol()
+                
+                temp_dist = self.totalDist(self.groupMetrics(temp_solution,aggMethod),distMetric)
+            
+                sample_dists.append(temp_dist)
+                
+
         
-            sample_dists.append(temp_dist)
+        elif sample_type == 'var size':
             
+            for i in range(0,sample_size):
+                temp_solution = self.varSizeStartSol()
+                
+                temp_dist = self.totalDist(self.groupMetrics(temp_solution,aggMethod),distMetric)
+            
+                sample_dists.append(temp_dist)        
+        
+        print('making histogram')
         plt.hist(sample_dists,bins=bin_count)
-        plt.xticks(np.arange(0,16.5,0.5),rotation='vertical')
-        
-        
+        plt.xticks(np.arange(0,16.5,0.5),rotation='vertical')    
+        plt.show()
         
         #convert to numpy array
+        print('convert to df and pickle')
         sample_dists_np = np.array(sample_dists)
         
         sample_dists_df = pd.DataFrame(sample_dists_np)
@@ -333,6 +350,6 @@ class baseHeuristic:
         
         print(five_num_summary)
         
-        plt.show()
         
-        return five_num_summary
+        
+        return [five_num_summary, sample_dists]
