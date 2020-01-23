@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from numpy import percentile
 import random
+from statistics import variance as var
 
 
 class baseHeuristic:
@@ -278,34 +279,43 @@ class baseHeuristic:
             
             #set self.aggrDf attribute equal to the aggregated group dataframe
             self.aggrDf = master_df
+        
             
         return master_df
 
     #add up all of the pairwise distances using pairDist method
-    def totalDist(self,groups,dist):
+    def totalDist(self,groups,dist,varFactor=0):
         
         row_num = len(groups)
         combins = list(combinations(list(range(0,row_num)),2))
 
-        #instantiac variable to hold total distance
+        #instantiate variable to hold total distance
         total_dist = 0
+        
+        dist_list = []
         
         for i in range(0,len(combins)):
 
             temp_dist_df = groups[groups.iloc[:,0].isin(combins[i])]
             
-            
             #Get pairwise distance between two groups at a time, using self.pairDist
             
             temp_dist = self.pairDist(temp_dist_df.iloc[0][1:],temp_dist_df.iloc[1][1:],dist)
+            
+            dist_list.append(temp_dist)
+            
             #add to total_dist
             total_dist = total_dist + temp_dist
+            
+        dist_var = var(dist_list)
+        
+        total_dist = total_dist + varFactor*dist_var
         
         return total_dist
     
     
     #create a function to make a histogram of random position values
-    def sample_hist(self,sample_size,bin_count,aggMethod,distMetric,sample_type='equal size'):
+    def sample_hist(self,sample_size,bin_count,aggMethod,distMetric,sample_type='equal size',varFactor=0):
         
         sample_dists = []
         
@@ -315,7 +325,7 @@ class baseHeuristic:
             for i in range(0,sample_size):
                 temp_solution = self.startSol()
                 
-                temp_dist = self.totalDist(self.groupMetrics(temp_solution,aggMethod),distMetric)
+                temp_dist = self.totalDist(self.groupMetrics(temp_solution,aggMethod),distMetric,varFactor=varFactor)
             
                 sample_dists.append(temp_dist)
                 
@@ -332,7 +342,7 @@ class baseHeuristic:
         
         print('making histogram')
         plt.hist(sample_dists,bins=bin_count)
-        plt.xticks(np.arange(0,16.5,0.5),rotation='vertical')    
+        plt.xticks(np.arange(0,14,0.5),rotation='vertical')    
         plt.show()
         
         #convert to numpy array
