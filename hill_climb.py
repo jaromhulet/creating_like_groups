@@ -109,9 +109,12 @@ class hillClimb(nbr.nbrHood):
                 while done == 0:
                     
                     bestNbr = currentSolution
+                    
                     bestDist = self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric)
                     
+
                     for i in self.createNbrhood(currentSolution,self.nbrhoodsize):
+                        
                         obs = obs + 1
                         if self.totalDist(self.groupMetrics(i,aggMethod),distMetric) < self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric):
                             bestNbr = i
@@ -305,6 +308,9 @@ class hillClimb(nbr.nbrHood):
                         else:
                             currentSolution = bestNbr       
                     print("End expanded search")
+                
+                obs_statement = ("%s Solutions Examined" % obs)
+                print("done")                       
                     
                     
             
@@ -372,11 +378,11 @@ class hillClimb(nbr.nbrHood):
                         
                         
                     
-                obs_statement = ("%s Solutions Examined" % obs)
-                print("done")              
+            obs_statement = ("%s Solutions Examined" % obs)
+            print("done")              
             
-            #return solution metric and solution
-            return [self.groupMetrics(globalBestNbr,aggMethod),globalBestNbr,globalBestDist,obs_statement]            
+        #return solution metric and solution
+        return [self.groupMetrics(globalBestNbr,aggMethod),globalBestNbr,globalBestDist,obs_statement]            
         
         
         

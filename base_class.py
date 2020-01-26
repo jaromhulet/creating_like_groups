@@ -309,13 +309,13 @@ class baseHeuristic:
             
         dist_var = var(dist_list)
         
-        total_dist = total_dist + varFactor*dist_var
+        total_dist = total_dist + varFactor*math.log(dist_var)
         
         return total_dist
     
     
     #create a function to make a histogram of random position values
-    def sample_hist(self,sample_size,bin_count,aggMethod,distMetric,sample_type='equal size',varFactor=0):
+    def sample_hist(self,sample_size,bin_count,aggMethod,distMetric,sample_type='equal size',varFactor=36.85):
         
         sample_dists = []
         
@@ -341,8 +341,9 @@ class baseHeuristic:
                 sample_dists.append(temp_dist)        
         
         print('making histogram')
-        plt.hist(sample_dists,bins=bin_count)
-        plt.xticks(np.arange(0,14,0.5),rotation='vertical')    
+        sample_dists_np = np.array(sample_dists)
+        plt.hist(sample_dists_np.flatten(),bins=bin_count)
+        plt.xticks(np.arange(0,80,5),rotation='vertical')    
         plt.show()
         
         #convert to numpy array
@@ -363,3 +364,103 @@ class baseHeuristic:
         
         
         return [five_num_summary, sample_dists]
+    
+    
+    #add up all of the pairwise distances using pairDist method
+
+
+
+    def totalDistAndVar(self,groups,dist,varFactor=0):
+
+
+        row_num = len(groups)
+        combins = list(combinations(list(range(0,row_num)),2))
+
+        #instantiate variable to hold total distance
+        total_dist = 0
+
+        dist_list = []
+
+        for i in range(0,len(combins)):
+
+            temp_dist_df = groups[groups.iloc[:,0].isin(combins[i])]
+
+            #Get pairwise distance between two groups at a time, using self.pairDist
+
+
+            temp_dist = self.pairDist(temp_dist_df.iloc[0][1:],temp_dist_df.iloc[1][1:],dist)
+
+            dist_list.append(temp_dist)
+
+
+            #add to total_dist
+            total_dist = total_dist + temp_dist
+
+
+        dist_var = var(dist_list)
+
+        total_dist = total_dist + varFactor*dist_var
+
+
+        return dist_var, total_dist
+
+
+    #make a histogram of variables
+    def sample_hist_var(self,sample_size,bin_count,aggMethod,distMetric,sample_type='equal size',varFactor=0):
+
+
+        sample_vars = []
+
+        if sample_type == 'equal size':
+
+            print('Starting samples of solution space')
+
+            for i in range(0,sample_size):
+
+                temp_solution = self.startSol()
+
+
+                temp_var, temp_dist = self.totalDistAndVar(self.groupMetrics(temp_solution,aggMethod),distMetric,varFactor=varFactor)
+
+
+                sample_vars.append(math.log(temp_var**2))
+
+
+        elif sample_type == 'var size':
+
+
+            for i in range(0,sample_size):
+
+                temp_solution = self.varSizeStartSol()
+                temp_var, temp_dist = self.totalDistAndVar(self.groupMetrics(temp_solution,aggMethod),distMetric)
+                sample_vars.append(temp_var)        
+
+        print('making histogram')
+        
+        sample_vars_np = np.array(sample_vars)
+
+        plt.hist(sample_vars_np.flatten(),bins=bin_count)
+        plt.xticks(np.arange(0,5,0.25),rotation='vertical')   
+
+        plt.show()
+
+        #convert to numpy array
+
+        print('convert to df and pickle')
+        
+
+
+        sample_vars_df = pd.DataFrame(sample_vars_np)
+
+        sample_vars_df.to_pickle("./sample_var_distribution.pkl")
+
+        quartiles = percentile(sample_vars_np, [25,50,75])
+        
+        data_min, data_max = sample_vars_np.min(), sample_vars_np.max()
+
+
+        five_num_summary = [data_min,quartiles[0],quartiles[1],quartiles[2],data_max]
+
+        print(five_num_summary)
+
+        return [five_num_summary, sample_vars]    

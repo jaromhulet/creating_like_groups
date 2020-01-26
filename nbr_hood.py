@@ -130,56 +130,102 @@ class nbrHood(bc.baseHeuristic):
                     #set switch_dir to 0, so it will loop the opposite direction next while iteration
                     switch_dir = 0
                     print(grouping)
+                    
         return grouping
     
     
     #create a nieghborhood based on swapping
-        #groups input is the solution that needs neighbors
+    #groups input is the solution that needs neighbors
+    def createSeqList(self,start,stop):
+        
+            return_list = []
+        
+        
+            for i in range(start,stop):
+                return_list.append(i)
+    
+        
+            return return_list
+        
+        
+            
+        
     def createNbrhood(self,groups,nbrHoodSize,numSwaps=1,extraSwapProb=0.1,seed=1920):
+         
+            swap_record = []
+            nbrHood = []
+            
+            for i in range(0,nbrHoodSize):
+            #for i in range(0,len(nbrHoodSize)):
         
-        #set random seed
-        random.seed(seed)
+                #calculate probability for a random extra swap
+                extraSwapRand = random.uniform(0,1)
         
-        swap_record = []
+        
+        
+                #select two groups
+                groups_copy = copy.deepcopy(groups)
+                group_copy = list(range(0,len(groups)))
+        
+        
+                group1 = random.randint(0,len(groups)-1)
+                group_copy.pop(group1)
+        
+                group2 = random.choice(group_copy)
+        
+        
+                    #select an element from each group to swap
+        
+                for j in range(0,numSwaps):
+        
 
-        nbrHood = []
-
-        for i in range(0,nbrHoodSize):
-
-            #select two groups
-            groups_copy = copy.deepcopy(groups)
-            group_copy = list(range(0,len(groups)))
-            group1 = random.randint(0,len(groups)-1)
-            group_copy.pop(group1)
-
-            group2 = random.choice(group_copy)
-
-            #select an element from each group to swap
-            swap1 = random.randint(0,len(groups[group1])-1)
-            swap2 = random.randint(0,len(groups[group2])-1)
-
-            #create a variable to keep track of changes
-            swap_record_temp = [group1,swap1,group2,swap2]
-
-
-            #check if the swap has already been done before
-            if (swap_record_temp not in swap_record):
-
-                #perform swap and save new neighbor in neighbor list
-                swap_val1 = groups[group1][swap1]
-                swap_val2 = groups[group2][swap2]
-
-                groups_copy[group1][swap1] = swap_val2
-                groups_copy[group2][swap2] = swap_val1
-
-
-                #add the swap to the record of swaps that have been done
-                if i == 0:
-                    swap_record = [swap_record_temp]
-                else:
-                    swap_record.append(swap_record_temp)
-
+                    group1_list = self.createSeqList(0,len(groups_copy[group1]))    
+                    group2_list = self.createSeqList(0,len(groups_copy[group2]))
+        
+                    swap1 = random.choice(group1_list)
+                    swap2 = random.choice(group2_list)
+        
+               
+                    if extraSwapRand < extraSwapProb and j == 1:
+        
+                        #perform swap and save new neighbor in neighbor list
+                        swap_val1 = groups_copy[group1][swap1]      
+                        swap_val2 = groups_copy[group2][swap2]
+        
+    
+                        groups_copy[group1][swap1] = swap_val2       
+                        groups_copy[group2][swap2] = swap_val1
+        
+              
+                        group1_list.remove(swap1)
+                        group2_list.remove(swap2)
+        
+       
+                        #add extra element swap after the initial swap      
+                        swap3 = random.choice(group2_list)
+                        swap_val3 = groups_copy[group2][swap3]
+        
+                        groups_copy[group1].append(swap_val3)
+                        groups_copy[group2].pop(swap3)
+        
+                        group2_list.remove(swap3)
+        
+        
+                    else:
+        
+                        swap_val1 = groups_copy[group1][swap1]
+                        swap_val2 = groups_copy[group2][swap2]
+        
+        
+                        groups_copy[group1][swap1] = swap_val2
+                        groups_copy[group2][swap2] = swap_val1
+             
+                        group1_list.remove(swap1)    
+                        group2_list.remove(swap2)
+          
+        
                 #put neighbor into neighborhood list
+        
                 nbrHood.append(groups_copy)
-
-        return nbrHood
+   
+            return nbrHood
