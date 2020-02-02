@@ -29,8 +29,11 @@ class hillClimb(nbr.nbrHood):
             
             for j in range(0,restarts):
                 
-            
-                currentSolution = startSolution
+                #do a random start if it is not the first iteration
+                if j == 0:
+                    currentSolution = startSolution
+                else:
+                    currentSolution = self.startSol(randStart=randStart,startMetric=startMetric)
             
                 done = 0
             
@@ -71,7 +74,13 @@ class hillClimb(nbr.nbrHood):
         #implement first accept method
         elif selectMethod == 'HILL CLIMB':
             
-            currentSolution = startSolution
+            for j in range(0,restarts):
+                
+                #do a random start if it is not the first iteration
+                if j == 0:
+                    currentSolution = startSolution
+                else:
+                    currentSolution = self.startSol(randStart=randStart,startMetric=startMetric)
             
             done = 0
             
@@ -101,8 +110,15 @@ class hillClimb(nbr.nbrHood):
             
             for j in range(0,restarts):
                 
-            
-                currentSolution = startSolution
+
+                    
+                #do a random start if it is not the first iteration
+                if j == 0:
+                    currentSolution = startSolution
+                else:
+                    currentSolution = self.startSol(randStart=randStart,startMetric=startMetric)
+                        
+                print(currentSolution)
             
                 done = 0
             
@@ -114,6 +130,7 @@ class hillClimb(nbr.nbrHood):
                     
 
                     for i in self.createNbrhood(currentSolution,self.nbrhoodsize):
+                        
                         
                         obs = obs + 1
                         if self.totalDist(self.groupMetrics(i,aggMethod),distMetric) < self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric):
@@ -164,8 +181,11 @@ class hillClimb(nbr.nbrHood):
             
             for j in range(0,restarts):
                 
-            
-                currentSolution = startSolution
+                #do a random start if it is not the first iteration
+                if j == 0:
+                    currentSolution = startSolution
+                else:
+                    currentSolution = self.startSol(randStart=randStart,startMetric=startMetric)            
             
                 done = 0
             
@@ -180,14 +200,20 @@ class hillClimb(nbr.nbrHood):
                         obs = obs + 1
                         
                         temp_nbr_df = temp_nbr_df.append({'nbr':i,'dist':self.totalDist(self.groupMetrics(i,aggMethod),distMetric)},ignore_index=True)
+                        
+                    
                     
                     #if none of the new neighbors are better than current solution, stop
                     dists = temp_nbr_df['dist']
+                    
                     if min(dists) > bestDist:
                         done = 1
                         break
                 
                     temp_nbr_df = temp_nbr_df.sort_values(by='dist')
+                    
+                    #reset index to be able to point to new positions after sorting
+                    temp_nbr_df = temp_nbr_df.reset_index()
                     
                     temp_array = temp_nbr_df['dist'].values
                     
@@ -203,17 +229,15 @@ class hillClimb(nbr.nbrHood):
                     #create cumulative array to go into rand_find function
                     temp_array_cum = np.cumsum(temp_array)
                     
+                    
                     #find index of randomly selected nbr
                     index_num = rand_find(temp_array_cum,random.uniform(0,1))
                     
-                    
                     bestNbr = temp_nbr_df['nbr'][index_num]
-                    
-                    
-                      
+                    bestDist = self.totalDist(self.groupMetrics(bestNbr,aggMethod),distMetric)
                     currentSolution = bestNbr 
                     
-                    print(self.totalDist(self.groupMetrics(currentSolution,aggMethod),distMetric))
+                    print(bestDist)
                         
                         
                 print("restart")
@@ -256,7 +280,11 @@ class hillClimb(nbr.nbrHood):
             for j in range(0,restarts):
                 
             
-                currentSolution = startSolution
+                #do a random start if it is not the first iteration
+                if j == 0:
+                    currentSolution = startSolution
+                else:
+                    currentSolution = self.startSol(randStart=randStart,startMetric=startMetric)
             
                 done = 0
             
@@ -323,7 +351,11 @@ class hillClimb(nbr.nbrHood):
             for j in range(0,restarts):
                     
                 
-                currentSolution = startSolution
+                #do a random start if it is not the first iteration
+                if j == 0:
+                    currentSolution = startSolution
+                else:
+                    currentSolution = self.startSol(randStart=randStart,startMetric=startMetric)
                 
                 done = 0
                 

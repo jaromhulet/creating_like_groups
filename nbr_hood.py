@@ -186,7 +186,7 @@ class nbrHood(bc.baseHeuristic):
                     swap2 = random.choice(group2_list)
         
                
-                    if extraSwapRand < extraSwapProb and j == 1:
+                    if extraSwapRand < extraSwapProb and j == 0:
         
                         #perform swap and save new neighbor in neighbor list
                         swap_val1 = groups_copy[group1][swap1]      
