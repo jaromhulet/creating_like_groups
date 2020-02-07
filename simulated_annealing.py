@@ -13,7 +13,7 @@ class simulatedAnnealing(nbr.nbrHood):
         super().__init__(df,numGroups)
         self.nbrhoodsize = nbrhoodsize
     
-    def runSimulatedAnnealing(self,restarts,coolingSchedule,tempIters,aggMethod,distMetric,randStart='Y',startMetric=1):
+    def runSimulatedAnnealing(self,coolingSchedule,tempIters,aggMethod,distMetric,randStart='Y',startMetric=1):
         
         #random.seed(seed)
         obs = 0
