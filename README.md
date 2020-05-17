@@ -1,2 +1,5 @@
-# DSA_5900
-This repository holds the code for my professional practicum for the Masters in Data Science and Analytics program at the University of Oklahoma.
+Creating Like Groups
+
+This project explores the problem of putting entities in similar groupings.
+
+See the Project_Report.pdf for a very detailed overview of the problem and conclusions of the project.
